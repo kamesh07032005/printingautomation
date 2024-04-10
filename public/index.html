@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order Details</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #ffd1a5; /* Light gray background */
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        max-width: 800px;
+        max-height: 180px;
+        margin: 50px auto;
+        background-color: rgb(255, 255, 255); /* White container background */
+        padding: 20px;
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+
+      form {
+        text-align: center;
+      }
+
+      label {
+        font-size: 18px;
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background-color: #f0413e; /* Coral color for button */
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #ff6347; /* Darker coral color on hover */
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .content {
+        width: 4in;
+        height: 4in;
+        background-color: white;
+        margin: auto;
+        border: 3px solid black;
+        padding: 5px;
+        font-size: 12px;
+      }
+
+      .content p {
+        font-size: 12px;
+      }
+
+      .content table {
+        font-size: 12px;
+      }
+
+      .content table th,
+      .content table td {
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Vaseegrah Veda</h1>
+      <h1>Order Details</h1>
+      <div>
+        <label for="order-id">Enter Order ID:</label>
+        <input type="text" id="order-id" />
+        <button onclick="printOrderDetails()">Print</button>
+      </div>
+      <div id="order-details"></div>
+    </div>
+
+    <script>
+      async function printOrderDetails() {
+        const orderId = document.getElementById("order-id").value;
+        if (!orderId) {
+          alert("Please enter an order ID.");
+          return;
+        }
+        try {
+          const response = await fetch(`/order-details/${orderId}`);
+          const order = await response.json();
+          displayOrderDetails(order);
+          downloadPDF(orderId);
+          updateOrderNotes(orderId);
+        } catch (error) {
+          console.error("Error fetching order details:", error);
+          alert("Error fetching order details. Please try again.");
+        }
+      }
+
+      function displayOrderDetails(order) {
+        const orderDetailsElement = document.getElementById("order-details");
+        if (order.id) {
+          orderDetailsElement.innerHTML = `
+            <!-- Your order details HTML here -->
+          `;
+        } else {
+          orderDetailsElement.innerHTML = "<p>No order found with this ID.</p>";
+        }
+      }
+
+      async function downloadPDF(orderId) {
+        try {
+          const response = await fetch(`/generate-pdf/${orderId}`);
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `order_${orderId}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error("Error downloading PDF:", error);
+          alert("Error downloading PDF. Please try again.");
+        }
+      }
+
+      async function updateOrderNotes(orderId) {
+        try {
+          const response = await fetch(`/check-customer-notes/${orderId}`);
+          const { notesExist, containsText, message } = await response.json();
+          if (!notesExist) {
+            alert("No customer notes found for this order.");
+          } else if (containsText) {
+            const confirmResend = confirm(
+              "The customer note contains the specified text. Do you want to resend it?"
+            );
+            if (confirmResend) {
+              const updateResponse = await fetch(
+                `/update-order-notes/${orderId}`
+              );
+              const updateMessage = await updateResponse.text();
+              alert(updateMessage);
+            }
+          } else {
+            const confirmResend = confirm(
+              "Note already exists. Do you want to resend it?"
+            );
+            if (confirmResend) {
+              const updateResponse = await fetch(
+                `/update-order-notes/${orderId}`
+              );
+              const updateMessage = await updateResponse.text();
+              alert(updateMessage);
+            }
+          }
+        } catch (error) {
+          console.error("Error updating order notes:", error);
+          alert("Error updating order notes. Please try again.");
+        }
+      }
+    </script>
+  </body>
+</html>
