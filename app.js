@@ -100,6 +100,8 @@ app.get('/generate-pdf/:orderId', async (req, res) => {
           font-family: Arial, sans-serif;
           margin: 0;
           padding: 0;
+          width: 4in;
+          height: 4in;
         }
     
         .content {
