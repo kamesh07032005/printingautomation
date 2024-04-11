@@ -105,33 +105,37 @@ app.get('/generate-pdf/:orderId', async (req, res) => {
         }
     
         .content {
-          width: 4in;
-          height: 4in;
+          width: 100%;
+          height: 100%;
           background-color: white;
           border: 3px solid black;
           padding: 5px;
-          font-size: 12px; /* Adjust font size as needed */
+          font-size: 10px; /* Adjust font size as needed */
         }
     
         .content p {
-          font-size: 12px;
+          font-size: 10px;
         }
     
         .content table {
           width: 100%;
-          font-size: 12px;
+          font-size: 10px;
           border-collapse: collapse;
         }
     
         .content table th,
         .content table td {
           border: 1px solid #ddd;
-          padding: 8px;
+          padding: 5px;
           text-align: left;
         }
     
         .content table th {
           background-color: #f2f2f2;
+        }
+    
+        h3, h2 {
+          margin: 5px 0;
         }
       </style>
     </head>
@@ -141,7 +145,7 @@ app.get('/generate-pdf/:orderId', async (req, res) => {
         <h2 style="text-align: center;">Vaseegrah Veda Order ID ${order.id}</h2>
         <table>
           <tr>
-            <td style="font-size: 14px; padding: 8px; text-align: center;">To</td>
+            <td style="font-size: 10px; padding: 5px; text-align: center;">To</td>
             <td>
               ${order.billing.first_name} ${order.billing.last_name},<br>
               ${order.billing.phone}<br>
@@ -185,8 +189,8 @@ app.get('/generate-pdf/:orderId', async (req, res) => {
       </div>
     </body>
     </html>
-    
-      `;
+    `;
+
 
     // Options for PDF generation
     const options = {
